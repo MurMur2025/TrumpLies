@@ -1,0 +1,394 @@
+<body>
+  <header class="site-header">
+    <img src="assets/logo.png" 
+         alt="Your Site Name" 
+         class="site-logo" />
+  </header>
+  
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fact Check AI</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.section-header {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.suggested-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.question-box {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1 1 200px;
+  max-width: 280px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.question-box:hover {
+  background-color: #f5f5f5;
+}
+
+.search-container {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 50px 12px 40px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  z-index: 1;
+}
+
+.search-button {
+  min-width: 80px;
+  padding: 0 15px;
+  background-color: #111;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#loading {
+  text-align: center;
+  margin: 15px 0;
+  font-style: italic;
+  color: #00008b;
+  display: none;
+  font-size: 0.9rem;
+}
+
+#responseContainer {
+  border-top: 1px solid #ddd;
+  margin-top: 20px;
+  padding-top: 20px;
+  display: none;
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.copy-button {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.copy-icon {
+  margin-right: 5px;
+}
+
+#response {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 4px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+#mainContent {
+  display: flex;
+  flex-direction: column;
+}
+
+#suggestedContent {
+  order: 2; /* Suggested content appears after response */
+}
+
+#responseContent {
+  order: 1; /* Response appears before suggested content */
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<div class="header">
+  <h1>Fact Checking The Trump Administration.</h1>
+  <div class="description">
+   <p style="font-size: 1.0rem; font-weight: bold;">Built for creators. Backed by facts.</p> <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
+  </div>
+</div>
+
+<form id="factCheckForm">
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
+    <button type="submit" id="searchButton" class="search-button">ASK</button>
+  </div>
+</form>
+
+<div id="loading"></div>
+
+<div id="mainContent">
+  <!-- Response Section -->
+  <div id="responseContent">
+    <div id="responseContainer">
+      <div class="response-header">
+        <h3>Results</h3>
+        <button id="copyButton" class="copy-button">
+          <span class="copy-icon">📋</span> Copy
+        </button>
+      </div>
+      <div id="response"></div>
+    </div>
+  </div>
+
+  <!-- Suggested Searches Section -->
+  <div id="suggestedContent">
+    <h3 class="section-header">What People Are Asking</h3>
+    <div class="suggested-questions">
+      <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Subscribe CTA -->
+    <div style="text-align: center; margin-top: 30px;">
+      <p style="margin-bottom: 10px; font-size: 16px; font-style: bold;">Want deeper breakdowns and fresh messaging each week?</p> <p style="font-size: 12px;"> Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
+      <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" 
+         style="background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block;">
+        Subscribe
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<!-- Cleaner, Footer-Style Placement -->
+<div style="text-align: center; font-size: 12px; color: #666; margin-top: 30px;">
+  <a href="#" onclick="toggleDropdown(); return false;" style="color: #0077cc; text-decoration: underline; cursor: pointer;">
+    How Hmm AI Works
+  </a>
+  <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
+    <strong>How Hmm AI Works</strong><br>
+    Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
+  </div>
+</div>
+
+<script>
+  function toggleDropdown() {
+    const content = document.getElementById("dropdownContent");
+    content.style.display = content.style.display === "none" ? "block" : "none";
+  }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('factCheckForm');
+  const promptInput = document.getElementById('prompt');
+  const loading = document.getElementById('loading');
+  const response = document.getElementById('response');
+  const responseContainer = document.getElementById('responseContainer');
+  const copyButton = document.getElementById('copyButton');
+  const suggestedQuestionsContainer = document.querySelector('.suggested-questions');
+  const searchButton = document.getElementById('searchButton');
+
+  let loadingInterval;
+  let originalResponseText = '';
+  let isSubmitting = false;
+
+  const renderer = new marked.Renderer();
+  renderer.link = function(href, title, text) {
+    const link = marked.Renderer.prototype.link.apply(this, arguments);
+    return link.replace('<a', '<a target="_blank" rel="noopener noreferrer"');
+  };
+  marked.setOptions({ renderer: renderer });
+
+  const defaultQuestions = [
+    'Was classified information sent over Signal?',
+    'Does Social Security have widespread fraud?',
+    'Is there voter fraud from undocumented people?',
+    'Are we spending money on transgender mice?',
+    'Should the Department of Ed be eliminated?',
+    'Is half the aid to Ukraine missing?'
+  ];
+
+  function loadPopularSearches() {
+    updateSuggestedQuestions(defaultQuestions);
+  }
+
+  function updateSuggestedQuestions(questions) {
+    suggestedQuestionsContainer.innerHTML = '';
+    if (!questions || questions.length === 0) return;
+
+    questions.forEach(question => {
+      const questionBox = document.createElement('div');
+      questionBox.className = 'question-box';
+      questionBox.textContent = question;
+      questionBox.onclick = function() {
+        fillSearch(question);
+      };
+      suggestedQuestionsContainer.appendChild(questionBox);
+    });
+  }
+
+  window.fillSearch = function(text) {
+    promptInput.value = text;
+  };
+
+  const loadingMessages = [
+    "Fact-check underway. Average response time is 30 seconds.",
+  ];
+
+  function startLoadingAnimation() {
+    if (loadingInterval) clearInterval(loadingInterval);
+    let messageIndex = 0;
+    loading.style.display = 'block';
+    loading.innerText = loadingMessages[0];
+    loadingInterval = setInterval(function() {
+      messageIndex = (messageIndex + 1) % loadingMessages.length;
+      loading.innerText = loadingMessages[messageIndex];
+    }, 10000);
+  }
+
+  function stopLoadingAnimation() {
+    clearInterval(loadingInterval);
+    loading.style.display = 'none';
+  }
+
+  copyButton.addEventListener('click', async function() {
+    try {
+      await navigator.clipboard.writeText(originalResponseText);
+      const originalText = copyButton.innerHTML;
+      copyButton.innerHTML = '✓ Copied!';
+      copyButton.style.backgroundColor = '#4CAF50';
+      copyButton.style.color = 'white';
+      setTimeout(function() {
+        copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
+        copyButton.style.backgroundColor = '#f1f1f1';
+        copyButton.style.color = 'black';
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSubmitting) return;
+
+    const userPrompt = promptInput.value.trim();
+    if (!userPrompt) return;
+
+    isSubmitting = true;
+    searchButton.disabled = true;
+    startLoadingAnimation();
+    response.innerHTML = '';
+    responseContainer.style.display = 'none';
+
+    try {
+      const res = await fetch('https://hook.us2.make.com/mmm43o9ayappwwidff9uupgsqsrudaaf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userPrompt })
+      });
+
+      if (!res.ok) {
+        response.innerText = `Server error: ${res.status} ${res.statusText}`;
+        responseContainer.style.display = 'block';
+        return;
+      }
+
+      const text = await res.text();
+      let responseData;
+      try {
+        responseData = JSON.parse(text);
+      } catch {
+        responseData = { answer: text || "Response could not be processed" };
+      }
+
+      if (responseData && responseData.answer) {
+        originalResponseText = responseData.answer;
+        try {
+          response.innerHTML = marked.parse(responseData.answer);
+        } catch {
+          response.textContent = responseData.answer;
+        }
+        responseContainer.style.display = 'block';
+      } else {
+        response.textContent = "Response received but no answer content found.";
+        responseContainer.style.display = 'block';
+      }
+    } catch (error) {
+      response.textContent = 'Error: ' + error.message;
+      responseContainer.style.display = 'block';
+    } finally {
+      stopLoadingAnimation();
+      isSubmitting = false;
+      searchButton.disabled = false;
+    }
+  });
+
+  loadPopularSearches();
+});
+</script>
+</body>
+</html>
