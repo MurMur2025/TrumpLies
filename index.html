@@ -13,7 +13,6 @@
       color: #333;
       line-height: 1.5;
     }
-
     /* Logo header */
     .site-header {
       text-align: center;
@@ -24,7 +23,6 @@
       height: auto;
       display: inline-block;
     }
-
     /* Page title area */
     .header {
       text-align: center;
@@ -41,7 +39,6 @@
       margin-bottom: 30px;
       text-align: center;
     }
-
     /* Suggested questions */
     .section-header {
       margin-top: 30px;
@@ -70,7 +67,6 @@
     .question-box:hover {
       background-color: #f5f5f5;
     }
-
     /* Search bar */
     .search-container {
       position: relative;
@@ -103,7 +99,6 @@
       cursor: pointer;
       font-weight: bold;
     }
-
     /* Loading & response */
     #loading {
       text-align: center;
@@ -145,7 +140,6 @@
       max-height: 500px;
       overflow-y: auto;
     }
-
     /* Layout ordering */
     #mainContent {
       display: flex;
@@ -210,7 +204,7 @@
     <!-- Suggested questions + CTA -->
     <div id="suggestedContent">
       <h3 class="section-header">What People Are Asking</h3>
-      <div class="suggested-questions"><!-- JS populated --></div>
+      <div class="suggested-questions"></div>
       <div style="text-align:center; margin-top:30px;">
         <p style="margin-bottom:10px; font-size:16px; font-style:bold;">
           Want deeper breakdowns and fresh messaging each week?
@@ -240,7 +234,7 @@
       style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background:#fafafa; font-size:13px; max-width:600px; margin:10px auto 0;"
     >
       <strong>How Hmm AI Works</strong><br/>
-      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy.  
+      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy.
       It then delivers fact-based summaries you can trust—and messaging you can use.
     </div>
   </div>
@@ -252,17 +246,17 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      const form      = document.getElementById("factCheckForm");
-      const promptIn  = document.getElementById("prompt");
-      const loading   = document.getElementById("loading");
-      const response  = document.getElementById("response");
-      const respCont  = document.getElementById("responseContainer");
-      const copyBtn   = document.getElementById("copyButton");
-      const suggWrap  = document.querySelector(".suggested-questions");
-      const searchBtn = document.getElementById("searchButton");
-      let loadingInterval, originalText = "", submitting = false;
+      const form = document.getElementById("factCheckForm");
+      const promptInput = document.getElementById("prompt");
+      const loading = document.getElementById("loading");
+      const response = document.getElementById("response");
+      const responseContainer = document.getElementById("responseContainer");
+      const copyButton = document.getElementById("copyButton");
+      const suggestedQuestionsContainer = document.querySelector(".suggested-questions");
+      const searchButton = document.getElementById("searchButton");
+      let loadingInterval, originalResponseText = "", isSubmitting = false;
 
-      // Markdown renderer
+      // Markdown renderer setup
       const renderer = new marked.Renderer();
       renderer.link = (href, title, text) => {
         const html = marked.Renderer.prototype.link.apply(renderer, arguments);
@@ -270,92 +264,114 @@
       };
       marked.setOptions({ renderer });
 
-      const defaults = [
-        "Was classified information sent over Signal?",
-        "Does Social Security have widespread fraud?",
-        "Is there voter fraud from undocumented people?",
-        "Are we spending money on transgender mice?",
-        "Should the Department of Ed be eliminated?",
-        "Is half the aid to Ukraine missing?"
+      const defaultQuestions = [
+        'Was classified information sent over Signal?',
+        'Does Social Security have widespread fraud?',
+        'Is there voter fraud from undocumented people?',
+        'Are we spending money on transgender mice?',
+        'Should the Department of Ed be eliminated?',
+        'Is half the aid to Ukraine missing?'
       ];
 
-      function renderSuggestions(list) {
-        suggWrap.innerHTML = "";
-        list.forEach(q => {
-          const box = document.createElement("div");
-          box.className = "question-box";
+      function updateSuggestedQuestions(questions) {
+        suggestedQuestionsContainer.innerHTML = '';
+        questions.forEach(q => {
+          const box = document.createElement('div');
+          box.className = 'question-box';
           box.textContent = q;
-          box.onclick = () => (promptIn.value = q);
-          suggWrap.appendChild(box);
+          box.onclick = () => (promptInput.value = q);
+          suggestedQuestionsContainer.appendChild(box);
         });
       }
 
-      function startLoading() {
-        let i = 0;
-        loading.style.display = "block";
+      function startLoadingAnimation() {
+        loading.style.display = 'block';
         loading.textContent = "Fact-check underway. Average response time is 30 seconds.";
         loadingInterval = setInterval(() => {
-          i = (i + 1) % 1;
           loading.textContent = "Fact-check underway. Average response time is 30 seconds.";
         }, 10000);
       }
 
-      function stopLoading() {
+      function stopLoadingAnimation() {
         clearInterval(loadingInterval);
-        loading.style.display = "none";
+        loading.style.display = 'none';
       }
 
-      copyBtn.addEventListener("click", async () => {
+      copyButton.addEventListener('click', async () => {
         try {
-          await navigator.clipboard.writeText(originalText);
-          copyBtn.textContent = "✓ Copied!";
-          copyBtn.style.backgroundColor = "#4CAF50";
-          copyBtn.style.color = "white";
+          await navigator.clipboard.writeText(originalResponseText);
+          copyButton.textContent = '✓ Copied!';
+          copyButton.style.backgroundColor = '#4CAF50';
+          copyButton.style.color = 'white';
           setTimeout(() => {
-            copyBtn.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyBtn.style.backgroundColor = "#f1f1f1";
-            copyBtn.style.color = "black";
+            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
+            copyButton.style.backgroundColor = '#f1f1f1';
+            copyButton.style.color = 'black';
           }, 2000);
-        } catch {}
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
       });
 
-      form.addEventListener("submit", async e => {
+      form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        if (submitting) return;
-        const prompt = promptIn.value.trim();
-        if (!prompt) return;
-        submitting = true;
-        searchBtn.disabled = true;
-        respCont.style.display = "none";
-        response.innerHTML = "";
-        startLoading();
+        if (isSubmitting) return;
+        const userPrompt = promptInput.value.trim();
+        if (!userPrompt) return;
+
+        isSubmitting = true;
+        searchButton.disabled = true;
+        responseContainer.style.display = 'none';
+        response.innerHTML = '';
+        startLoadingAnimation();
 
         try {
-          const res = await fetch("https://hook.us2.make.com/mmm43o9ayappwwidff9uupgsqsrudaaf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt })
+          const res = await fetch('https://hook.us2.make.com/mmm43o9ayappwwidff9uupgsqsrudaaf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: userPrompt })
           });
-          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
           const text = await res.text();
-          let data;
-          try { data = JSON.parse(text); }
-          catch { data = { answer: text || "No answer." }; }
-          originalText = data.answer;
-          response.innerHTML = marked.parse(data.answer);
-          respCont.style.display = "block";
+
+          // ▶️ Diagnostic logs
+          console.log('Raw response text:', text);
+          let responseData;
+          try {
+            responseData = JSON.parse(text);
+          } catch (parseErr) {
+            console.error('JSON parse error:', parseErr);
+            responseData = { answer: text || '' };
+          }
+          console.log('Parsed responseData:', responseData);
+
+          // ▶️ Safe parsing & rendering
+          const answerText = typeof responseData.answer === 'string' ? responseData.answer : '';
+          originalResponseText = answerText;
+          if (answerText) {
+            try {
+              response.innerHTML = marked.parse(answerText);
+            } catch (mdErr) {
+              console.warn('marked.parse failed:', mdErr);
+              response.textContent = answerText;
+            }
+          } else {
+            response.textContent = 'No valid answer returned.';
+          }
+          responseContainer.style.display = 'block';
+
         } catch (err) {
-          response.textContent = "Error: " + err.message;
-          respCont.style.display = "block";
+          response.textContent = 'Error: ' + err.message;
+          responseContainer.style.display = 'block';
         } finally {
-          stopLoading();
-          submitting = false;
-          searchBtn.disabled = false;
+          stopLoadingAnimation();
+          isSubmitting = false;
+          searchButton.disabled = false;
         }
       });
 
       // initial load
-      renderSuggestions(defaults);
+      updateSuggestedQuestions(defaultQuestions);
     });
   </script>
 </body>
