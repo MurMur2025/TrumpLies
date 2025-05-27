@@ -246,14 +246,14 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      const form = document.getElementById("factCheckForm");
-      const promptInput = document.getElementById("prompt");
-      const loading = document.getElementById("loading");
-      const response = document.getElementById("response");
-      const responseContainer = document.getElementById("responseContainer");
-      const copyButton = document.getElementById("copyButton");
-      const suggestedQuestionsContainer = document.querySelector(".suggested-questions");
-      const searchButton = document.getElementById("searchButton");
+      const form      = document.getElementById("factCheckForm");
+      const promptIn  = document.getElementById("prompt");
+      const loading   = document.getElementById("loading");
+      const response  = document.getElementById("response");
+      const respCont  = document.getElementById("responseContainer");
+      const copyBtn   = document.getElementById("copyButton");
+      const suggWrap  = document.querySelector(".suggested-questions");
+      const searchBtn = document.getElementById("searchButton");
       let loadingInterval, originalResponseText = "", isSubmitting = false;
 
       // Markdown renderer setup
@@ -274,13 +274,13 @@
       ];
 
       function updateSuggestedQuestions(questions) {
-        suggestedQuestionsContainer.innerHTML = '';
+        suggWrap.innerHTML = '';
         questions.forEach(q => {
           const box = document.createElement('div');
           box.className = 'question-box';
           box.textContent = q;
-          box.onclick = () => (promptInput.value = q);
-          suggestedQuestionsContainer.appendChild(box);
+          box.onclick = () => (promptIn.value = q);
+          suggWrap.appendChild(box);
         });
       }
 
@@ -297,16 +297,16 @@
         loading.style.display = 'none';
       }
 
-      copyButton.addEventListener('click', async () => {
+      copyBtn.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(originalResponseText);
-          copyButton.textContent = '✓ Copied!';
-          copyButton.style.backgroundColor = '#4CAF50';
-          copyButton.style.color = 'white';
+          copyBtn.textContent = '✓ Copied!';
+          copyBtn.style.backgroundColor = '#4CAF50';
+          copyBtn.style.color = 'white';
           setTimeout(() => {
-            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
-            copyButton.style.color = 'black';
+            copyBtn.innerHTML = '<span class="copy-icon">📋</span> Copy';
+            copyBtn.style.backgroundColor = '#f1f1f1';
+            copyBtn.style.color = 'black';
           }, 2000);
         } catch (err) {
           console.error('Failed to copy:', err);
@@ -316,12 +316,12 @@
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         if (isSubmitting) return;
-        const userPrompt = promptInput.value.trim();
+        const userPrompt = promptIn.value.trim();
         if (!userPrompt) return;
 
         isSubmitting = true;
-        searchButton.disabled = true;
-        responseContainer.style.display = 'none';
+        searchBtn.disabled = true;
+        respCont.style.display = 'none';
         response.innerHTML = '';
         startLoadingAnimation();
 
@@ -334,39 +334,45 @@
 
           const text = await res.text();
 
-          // ▶️ Diagnostic logs
-          console.log('Raw response text:', text);
+          // Optional diagnostics:
+          // console.log('Raw response text:', text);
+
           let responseData;
           try {
             responseData = JSON.parse(text);
           } catch (parseErr) {
-            console.error('JSON parse error:', parseErr);
             responseData = { answer: text || '' };
           }
-          console.log('Parsed responseData:', responseData);
 
-          // ▶️ Safe parsing & rendering
-          const answerText = typeof responseData.answer === 'string' ? responseData.answer : '';
+          // Safe parsing & rendering + Markdown normalization
+          const answerText = typeof responseData.answer === 'string'
+            ? responseData.answer
+            : '';
           originalResponseText = answerText;
+
           if (answerText) {
+            // Insert blank line before list items so marked recognizes them
+            let md = answerText;
+            md = md.replace(/([^\n])\n(- )/g, '$1\n\n$2');
+
             try {
-              response.innerHTML = marked.parse(answerText);
+              response.innerHTML = marked.parse(md);
             } catch (mdErr) {
-              console.warn('marked.parse failed:', mdErr);
               response.textContent = answerText;
             }
           } else {
             response.textContent = 'No valid answer returned.';
           }
-          responseContainer.style.display = 'block';
+
+          respCont.style.display = 'block';
 
         } catch (err) {
           response.textContent = 'Error: ' + err.message;
-          responseContainer.style.display = 'block';
+          respCont.style.display = 'block';
         } finally {
           stopLoadingAnimation();
           isSubmitting = false;
-          searchButton.disabled = false;
+          searchBtn.disabled = false;
         }
       });
 
