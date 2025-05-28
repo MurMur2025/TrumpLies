@@ -14,8 +14,13 @@
     .description { font-size: 14px; color: #666; margin-bottom: 30px; text-align: center; }
     .section-header { margin-top: 30px; margin-bottom: 15px; font-size: 18px; font-weight: bold; text-align: center; }
     .fact-sheet-list { display: flex; flex-direction: column; gap: 10px; margin: 20px auto; max-width: 600px; }
-    .fact-sheet-item { border: 1px solid #ddd; padding: 15px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
-    .fact-sheet-item:hover { background-color: #f5f5f5; }
+    .fact-sheet-item { border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
+    .fact-sheet-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; }
+    .fact-sheet-header:hover { background-color: #f1f1f1; }
+    .fact-sheet-content { display: none; padding: 15px; border-top: 1px solid #ddd; background-color: #fff; }
+    .fact-sheet-content img { max-width: 100%; height: auto; display: block; margin: 1rem 0; border-radius: 4px; }
+    .arrow { font-size: 12px; transition: transform 0.3s; }
+    .arrow.open { transform: rotate(90deg); }
     .search-container { position: relative; margin-bottom: 20px; display: flex; }
     .search-input { flex: 1; padding: 12px 50px 12px 40px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; font-size: 16px; outline: none; }
     .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; z-index: 1; }
@@ -26,6 +31,9 @@
     .copy-button { background-color: #f1f1f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
     .copy-icon { margin-right: 5px; }
     #response { background-color: #f9f9f9; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; }
+    .subscribe-section { text-align: center; margin-top: 30px; }
+    .subscribe-button { background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; }
+    .how-works-link { display: block; margin-top: 15px; font-size: 12px; color: #0077cc; text-decoration: underline; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -39,66 +47,84 @@
       <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
     </div>
   </div>
-  <form id="factCheckForm">
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
-      <button type="submit" id="searchButton" class="search-button">ASK</button>
-    </div>
-  </form>
-  <div id="loading"></div>
-  <div id="responseContainer">
-    <div class="response-header">
-      <h3>Results</h3>
-      <button id="copyButton" class="copy-button">
-        <span class="copy-icon">📋</span> Copy
-      </button>
-    </div>
-    <div id="response"></div>
-  </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
+  <div class="subscribe-section">
+    <p style="margin-bottom: 10px; font-size: 16px;">Want deeper breakdowns and fresh messaging each week?</p>
+    <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
+    <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" class="subscribe-button">Subscribe</a>
+    <a href="#" onclick="toggleDropdown(); return false;" class="how-works-link">How Hmm AI Works</a>
+    <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
+      <strong>How Hmm AI Works</strong><br>
+      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
+    </div>
+  </div>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const response = document.getElementById('response');
-      const responseContainer = document.getElementById('responseContainer');
-      const copyButton = document.getElementById('copyButton');
-      let originalResponseText = '';
+  function toggleDropdown() {
+    const content = document.getElementById("dropdownContent");
+    content.style.display = content.style.display === "none" ? "block" : "none";
+  }
 
-      fetch('data/fact-sheets.json')
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById('factSheetList');
-          data.forEach(sheet => {
-            const item = document.createElement('div');
-            item.className = 'fact-sheet-item';
-            item.textContent = sheet.title;
-            item.onclick = () => {
-              const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.highlights.join('\n- ')}\n\n**Suggested Post:**\n${sheet.post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
-              originalResponseText = formatted;
-              response.innerHTML = marked.parse(formatted);
-              responseContainer.style.display = 'block';
-            };
-            list.appendChild(item);
-          });
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('data/fact-sheets.json')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('factSheetList');
+        data.forEach(sheet => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'fact-sheet-item';
+
+          const header = document.createElement('div');
+          header.className = 'fact-sheet-header';
+          header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
+
+          const content = document.createElement('div');
+          content.className = 'fact-sheet-content';
+
+          let markdown = `**Hook:**
+${sheet.hook}
+
+**Key Facts:**
+- ${sheet.key_facts.join('
+- ')}
+
+**What to Highlight:**
+- ${sheet.what_to_highlight.join('
+- ')}
+
+**Suggested Post:**
+${sheet.suggested_post}`;
+
+          if (sheet.image_url) {
+            markdown += `
+
+![Suggested Graphic](${sheet.image_url})
+
+[⬇ Download Graphic](${sheet.image_url})`;
+          }
+
+          markdown += `
+
+**Sources:**
+- ${sheet.sources.join('
+- ')}`;
+
+          content.innerHTML = marked.parse(markdown);
+
+          header.onclick = () => {
+            const isOpen = content.style.display === 'block';
+            content.style.display = isOpen ? 'none' : 'block';
+            const arrow = header.querySelector('.arrow');
+            arrow.classList.toggle('open', !isOpen);
+          };
+
+          wrapper.appendChild(header);
+          wrapper.appendChild(content);
+          list.appendChild(wrapper);
         });
-
-      copyButton.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(originalResponseText);
-          copyButton.innerHTML = '✓ Copied!';
-          copyButton.style.backgroundColor = '#4CAF50';
-          copyButton.style.color = 'white';
-          setTimeout(() => {
-            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
-            copyButton.style.color = 'black';
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy text: ', err);
-        }
       });
-    });
-  </script>
+  });
+</script>
+</body>
 </body>
 </html>
