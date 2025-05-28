@@ -169,25 +169,25 @@
       sources.innerHTML = '';
 
       try {
-        const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
+        const res = await fetch('https://hook.us2.make.com/YOUR_NEW_WEBHOOK_URL', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
         });
 
-        const { hook: h, key_points: kp, suggested_post: sp, sources: srcs } = await res.json();
-        originalResponseText = `${h}\n\n${kp.join('\n')}\n\n${sp}\n\nSources:\n${srcs.join('\n')}`;
+        const data = await res.json();
+        originalResponseText = JSON.stringify(data, null, 2);
 
-        hook.innerHTML = `<div class='block-title'>Overview</div><p>${h}</p>`;
+        hook.innerHTML = `<div class='block-title'>Overview</div><p>${data.hook}</p>`;
         keyPoints.textContent = 'Key Facts';
-        kp.forEach(pt => {
+        (data.key_points || []).forEach(pt => {
           const li = document.createElement('li');
           li.textContent = pt;
           bullets.appendChild(li);
         });
         social.textContent = 'Suggested Social Post';
-        suggestedPost.textContent = sp;
-        srcs.forEach(link => {
+        suggestedPost.textContent = data.suggested_post;
+        (data.sources || []).forEach(link => {
           const a = document.createElement('a');
           a.href = link;
           a.textContent = link;
@@ -196,6 +196,7 @@
           sources.appendChild(a);
           sources.appendChild(document.createElement('br'));
         });
+
         responseContainer.style.display = 'block';
       } catch (err) {
         alert('There was an error fetching the fact-check.');
