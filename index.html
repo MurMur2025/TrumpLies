@@ -77,54 +77,52 @@
   </div>
 
   <script>
-    function toggleDropdown() {
-      const content = document.getElementById("dropdownContent");
-      content.style.display = content.style.display === "none" ? "block" : "none";
-    }
+  function toggleDropdown() {
+    const content = document.getElementById("dropdownContent");
+    content.style.display = content.style.display === "none" ? "block" : "none";
+  }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const response = document.getElementById('response');
-      const responseContainer = document.getElementById('responseContainer');
-      const copyButton = document.getElementById('copyButton');
-      let originalResponseText = '';
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('data/fact-sheets.json')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('factSheetList');
+        data.forEach(sheet => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'fact-sheet-item';
 
-      fetch('data/fact-sheets.json')
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById('factSheetList');
-          data.forEach(sheet => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'fact-sheet-item';
+          const header = document.createElement('div');
+          header.className = 'fact-sheet-header';
+          header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
 
-            const header = document.createElement('div');
-            header.className = 'fact-sheet-header';
-            header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
+          const content = document.createElement('div');
+          content.className = 'fact-sheet-content';
 
-            const content = document.createElement('div');
-            content.className = 'fact-sheet-content';
+          let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
+          
+          if (sheet.image_url) {
+            markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
+          }
 
-            let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
+          markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
 
-            if (sheet.image_url) {
-              markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
-            }
+          content.innerHTML = marked.parse(markdown);
 
-            markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+          header.onclick = () => {
+            const isOpen = content.style.display === 'block';
+            content.style.display = isOpen ? 'none' : 'block';
+            const arrow = header.querySelector('.arrow');
+            arrow.classList.toggle('open', !isOpen);
+          };
 
-            content.innerHTML = marked.parse(markdown);
-
-            header.onclick = () => {
-              const isOpen = content.style.display === 'block';
-              content.style.display = isOpen ? 'none' : 'block';
-              const arrow = header.querySelector('.arrow');
-              arrow.classList.toggle('open', !isOpen);
-            };
-
-            wrapper.appendChild(header);
-            wrapper.appendChild(content);
-            list.appendChild(wrapper);
-          });
+          wrapper.appendChild(header);
+          wrapper.appendChild(content);
+          list.appendChild(wrapper);
         });
+      });
+    });
+  </script>
+
 
       copyButton.addEventListener('click', async () => {
         try {
