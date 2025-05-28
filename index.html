@@ -18,6 +18,7 @@
     .fact-sheet-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; }
     .fact-sheet-header:hover { background-color: #f1f1f1; }
     .fact-sheet-content { display: none; padding: 15px; border-top: 1px solid #ddd; background-color: #fff; }
+    .fact-sheet-content img { max-width: 100%; height: auto; display: block; margin: 1rem 0; border-radius: 4px; }
     .arrow { font-size: 12px; transition: transform 0.3s; }
     .arrow.open { transform: rotate(90deg); }
     .search-container { position: relative; margin-bottom: 20px; display: flex; }
@@ -46,23 +47,6 @@
       <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
     </div>
   </div>
-  <form id="factCheckForm">
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
-      <button type="submit" id="searchButton" class="search-button">ASK</button>
-    </div>
-  </form>
-  <div id="loading"></div>
-  <div id="responseContainer">
-    <div class="response-header">
-      <h3>Results</h3>
-      <button id="copyButton" class="copy-button">
-        <span class="copy-icon">📋</span> Copy
-      </button>
-    </div>
-    <div id="response"></div>
-  </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
   <div class="subscribe-section">
@@ -75,71 +59,72 @@
       Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
     </div>
   </div>
-
   <script>
-  function toggleDropdown() {
-    const content = document.getElementById("dropdownContent");
-    content.style.display = content.style.display === "none" ? "block" : "none";
-  }
+    function toggleDropdown() {
+      const content = document.getElementById("dropdownContent");
+      content.style.display = content.style.display === "none" ? "block" : "none";
+    }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    fetch('data/fact-sheets.json')
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('factSheetList');
-        data.forEach(sheet => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'fact-sheet-item';
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('data/fact-sheets.json')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('factSheetList');
+          data.forEach(sheet => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'fact-sheet-item';
 
-          const header = document.createElement('div');
-          header.className = 'fact-sheet-header';
-          header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
+            const header = document.createElement('div');
+            header.className = 'fact-sheet-header';
+            header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
 
-          const content = document.createElement('div');
-          content.className = 'fact-sheet-content';
+            const content = document.createElement('div');
+            content.className = 'fact-sheet-content';
 
-          let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
-          
-          if (sheet.image_url) {
-            markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
-          }
+            let markdown = `**Hook:**
+${sheet.hook}
 
-          markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+**Key Facts:**
+- ${sheet.key_facts.join('
+- ')}
 
-          content.innerHTML = marked.parse(markdown);
+**What to Highlight:**
+- ${sheet.what_to_highlight.join('
+- ')}
 
-          header.onclick = () => {
-            const isOpen = content.style.display === 'block';
-            content.style.display = isOpen ? 'none' : 'block';
-            const arrow = header.querySelector('.arrow');
-            arrow.classList.toggle('open', !isOpen);
-          };
+**Suggested Post:**
+${sheet.suggested_post}`;
 
-          wrapper.appendChild(header);
-          wrapper.appendChild(content);
-          list.appendChild(wrapper);
+            if (sheet.image_url) {
+              markdown += `
+
+![Suggested Graphic](${sheet.image_url})
+
+[⬇ Download Graphic](${sheet.image_url})`;
+            }
+
+            markdown += `
+
+**Sources:**
+- ${sheet.sources.join('
+- ')}`;
+
+            content.innerHTML = marked.parse(markdown);
+
+            header.onclick = () => {
+              const isOpen = content.style.display === 'block';
+              content.style.display = isOpen ? 'none' : 'block';
+              const arrow = header.querySelector('.arrow');
+              arrow.classList.toggle('open', !isOpen);
+            };
+
+            wrapper.appendChild(header);
+            wrapper.appendChild(content);
+            list.appendChild(wrapper);
+          });
         });
-      });
     });
   </script>
-
-
-      copyButton.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(originalResponseText);
-          copyButton.innerHTML = '✓ Copied!';
-          copyButton.style.backgroundColor = '#4CAF50';
-          copyButton.style.color = 'white';
-          setTimeout(() => {
-            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
-            copyButton.style.color = 'black';
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy text: ', err);
-        }
-      });
-    });
-  </script>
+</body>
 </body>
 </html>
