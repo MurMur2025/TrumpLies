@@ -65,7 +65,6 @@
   </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
-
   <div class="subscribe-section">
     <p style="margin-bottom: 10px; font-size: 16px;">Want deeper breakdowns and fresh messaging each week?</p>
     <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
@@ -103,8 +102,16 @@
 
             const content = document.createElement('div');
             content.className = 'fact-sheet-content';
-            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
-            content.innerHTML = marked.parse(formatted);
+
+            let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
+
+            if (sheet.image_url) {
+              markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
+            }
+
+            markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+
+            content.innerHTML = marked.parse(markdown);
 
             header.onclick = () => {
               const isOpen = content.style.display === 'block';

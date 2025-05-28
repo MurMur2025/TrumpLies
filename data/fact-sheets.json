@@ -44,5 +44,56 @@
       "https://www.reuters.com/world/us/doge-website-offers-error-filled-window-into-musks-government-overhaul-2025-03-04/",
       "https://www.businessinsider.com/larry-summers-doge-disastrous-failure-all-in-podcast-trump-administration-2025-4"
     ]
+  },
+  {
+    "title": "Trump's Corruption: Crypto Profiteering",
+    "hook": "Since returning to office, Donald Trump’s personal net worth has skyrocketed by over $6 billion—driven largely by his own crypto ventures and business dealings that profit from government influence. This isn’t public service. It’s self-enrichment.",
+    "key_facts": [
+      "Trump’s net worth has increased by more than $6 billion since January 2025, according to Forbes estimates and SEC filings.",
+      "The $TRUMP memecoin launched just before his inauguration and surged to a $27 billion valuation—Trump-controlled entities hold an estimated 80% of the supply.",
+      "The Trump family earned up to $100 million in trading fees in just the first two weeks of the token’s release.",
+      "Trump Media announced plans to raise $2.5 billion for a Bitcoin fund—one that he controls—after signaling support for pro-crypto federal policies.",
+      "Foreign investment from entities linked to China and the UAE has flowed into Trump-affiliated crypto projects, raising serious national security concerns."
+    ],
+    "what_to_highlight": [
+      "Trump is using the presidency to boost his personal fortune—blurring the line between public power and private profit.",
+      "His crypto empire has benefited from policy shifts he controls, creating a direct financial incentive for decisions made in office.",
+      "The influx of foreign money into his ventures isn’t just corrupt—it’s dangerous."
+    ],
+    "suggested_post": "Trump is $6 billion richer since taking office. He’s using the presidency to push crypto coins he owns, raise billions for his businesses, and cash in on foreign investors. It’s corruption in real time—and we need to say it.",
+    "sources": [
+      "https://www.forbes.com/sites/chasewithorn/2025/05/28/donald-trump-net-worth/?sh=6f308fe86c4f",
+      "https://en.wikipedia.org/wiki/%24Trump",
+      "https://www.reuters.com/business/finance/how-trump-family-took-over-crypto-firm-it-raised-hundreds-millions-2025-03-31/",
+      "https://www.aljazeera.com/economy/2025/5/27/trump-media-to-raise-2-5bn-to-invest-in-bitcoin",
+      "https://www.theatlantic.com/ideas/archive/2025/05/trump-golden-age-corruption/682935/"
+    ]
+  },
+  {
+    "title": "Defending Social Security",
+    "hook": "Social Security is the most successful government program in U.S. history—and it’s under attack. Donald Trump and Elon Musk are spreading lies to dismantle a system that keeps over 22 million Americans out of poverty. We can’t let them succeed.",
+    "key_facts": [
+      "Social Security lifts 22.7 million Americans out of poverty, including 16.1 million seniors.",
+      "It provides 50% or more of total income for half of all U.S. seniors.",
+      "4 million children and 9.2 million disabled workers rely on Social Security.",
+      "It injects $1.2 trillion into the U.S. economy annually and reduces pressure on other safety net programs.",
+      "Less than 1% of payments are improper—most are overpayments, not fraud, and the government actively recoups them.",
+      "Social Security is not going bankrupt and does not add to the national debt."
+    ],
+    "what_to_highlight": [
+      "Social Security is your money—an investment you’ve paid into with every paycheck.",
+      "Lies about fraud, debt, and bankruptcy are designed to justify benefit cuts and privatization.",
+      "The real threat is political: Trump and Musk want to dismantle Social Security under the guise of reform.",
+      "The solution to future funding is simple: raise the cap on taxable income for high earners."
+    ],
+    "suggested_post": "Trump and Musk want to gut Social Security. Don’t fall for it. Social Security isn’t bankrupt or broken—it’s under attack. Raise the cap. Protect your money. Protect your future.",
+    "sources": [
+      "https://www.ssa.gov/news/press/factsheets/basicfact-alt.pdf",
+      "https://www.cbpp.org/research/social-security/social-security-fact-sheet",
+      "https://oig.ssa.gov",
+      "https://cepr.net/issue-briefs/raise-the-cap-to-protect-social-security/",
+      "https://www.npr.org/2020/08/10/900919029/what-trumps-payroll-tax-deferral-means-for-social-security"
+    ],
+    "image_url": "assets/social-security-post.png"
   }
 ]
