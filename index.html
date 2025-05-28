@@ -103,7 +103,7 @@
 
             const content = document.createElement('div');
             content.className = 'fact-sheet-content';
-            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.highlights.join('\n- ')}\n\n**Suggested Post:**\n${sheet.post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
             content.innerHTML = marked.parse(formatted);
 
             header.onclick = () => {
