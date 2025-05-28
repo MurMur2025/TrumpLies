@@ -18,6 +18,7 @@
     .fact-sheet-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; }
     .fact-sheet-header:hover { background-color: #f1f1f1; }
     .fact-sheet-content { display: none; padding: 15px; border-top: 1px solid #ddd; background-color: #fff; }
+    .fact-sheet-content img { max-width: 100%; height: auto; border-radius: 4px; }
     .arrow { font-size: 12px; transition: transform 0.3s; }
     .arrow.open { transform: rotate(90deg); }
     .search-container { position: relative; margin-bottom: 20px; display: flex; }
@@ -46,23 +47,6 @@
       <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
     </div>
   </div>
-  <form id="factCheckForm">
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
-      <button type="submit" id="searchButton" class="search-button">ASK</button>
-    </div>
-  </form>
-  <div id="loading"></div>
-  <div id="responseContainer">
-    <div class="response-header">
-      <h3>Results</h3>
-      <button id="copyButton" class="copy-button">
-        <span class="copy-icon">📋</span> Copy
-      </button>
-    </div>
-    <div id="response"></div>
-  </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
   <div class="subscribe-section">
@@ -83,11 +67,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      const response = document.getElementById('response');
-      const responseContainer = document.getElementById('responseContainer');
-      const copyButton = document.getElementById('copyButton');
-      let originalResponseText = '';
-
       fetch('data/fact-sheets.json')
         .then(res => res.json())
         .then(data => {
@@ -104,11 +83,9 @@
             content.className = 'fact-sheet-content';
 
             let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
-
             if (sheet.image_url) {
               markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
             }
-
             markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
 
             content.innerHTML = marked.parse(markdown);
@@ -125,23 +102,6 @@
             list.appendChild(wrapper);
           });
         });
-
-      copyButton.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(originalResponseText);
-          copyButton.innerHTML = '✓ Copied!';
-          copyButton.style.backgroundColor = '#4CAF50';
-          copyButton.style.color = 'white';
-          setTimeout(() => {
-            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
-            copyButton.style.color = 'black';
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy text: ', err);
-        }
-      });
-    });
-  </script>
+    </script>
 </body>
 </html>
