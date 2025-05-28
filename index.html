@@ -1,209 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fact Check AI</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      color: #333;
-      line-height: 1.5;
-    }
-    .site-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .site-logo {
-      max-width: 200px;
-      height: auto;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    h1 {
-      font-size: 24px;
-    }
-    .description {
-      font-size: 14px;
-      color: #666;
-    }
-    .search-container {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    .search-input {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px 0 0 4px;
-    }
-    .search-button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background: #111;
-      color: #fff;
-      border: none;
-      border-radius: 0 4px 4px 0;
-    }
-    #loading {
-      text-align: center;
-      font-style: italic;
-      color: #00008b;
-      display: none;
-      margin-bottom: 10px;
-    }
-    #responseContainer {
-      margin-top: 30px;
-      display: none;
-    }
-    .response-block {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 4px;
-    }
-    .block-title {
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    .copy-button {
-      margin-top: 10px;
-      background: #eee;
-      border: 1px solid #ccc;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .dropdown {
-      margin-top: 10px;
-    }
-    .dropdown-content {
-      display: none;
-      margin-top: 5px;
-      font-size: 0.9rem;
-    }
-    .dropdown-toggle {
-      color: #0077cc;
-      cursor: pointer;
-      text-decoration: underline;
-      background: none;
-      border: none;
-      font-size: 0.9rem;
-    }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; }
+    .header { text-align: center; margin-bottom: 40px; }
+    h1 { font-size: 24px; margin-bottom: 10px; text-align: center; }
+    .description { font-size: 14px; color: #666; margin-bottom: 30px; text-align: center; }
+    .section-header { margin-top: 30px; margin-bottom: 15px; font-size: 18px; font-weight: bold; text-align: center; }
+    .suggested-questions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    .question-box { border: 1px solid #ddd; padding: 15px; border-radius: 4px; cursor: pointer; flex: 1 1 200px; max-width: 280px; font-size: 14px; transition: background-color 0.2s; }
+    .question-box:hover { background-color: #f5f5f5; }
+    .search-container { position: relative; margin-bottom: 20px; display: flex; }
+    .search-input { flex: 1; padding: 12px 50px 12px 40px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; font-size: 16px; outline: none; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; z-index: 1; }
+    .search-button { min-width: 80px; padding: 0 15px; background-color: #111; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
+    #loading { text-align: center; margin: 15px 0; font-style: italic; color: #00008b; display: none; font-size: 0.9rem; }
+    #responseContainer { border-top: 1px solid #ddd; margin-top: 20px; padding-top: 20px; display: none; }
+    .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .copy-button { background-color: #f1f1f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
+    .copy-icon { margin-right: 5px; }
+    #response { background-color: #f9f9f9; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; }
+    #mainContent { display: flex; flex-direction: column; }
+    #suggestedContent { order: 2; }
+    #responseContent { order: 1; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <img src="assets/logo.png" alt="MurMur logo" class="site-logo" />
-  </header>
-
   <div class="header">
     <h1>Fact Checking The Trump Administration.</h1>
     <div class="description">
-      <p><strong>Built for creators. Backed by facts.</strong></p>
-      <p>Get clear, fact-based answers—and ready to share talking points—to help fight misinformation.</p>
+      <p style="font-size: 1.0rem; font-weight: bold;">Built for creators. Backed by facts.</p>
+      <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
     </div>
   </div>
-
   <form id="factCheckForm">
     <div class="search-container">
-      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question" autocomplete="off" />
-      <button type="submit" class="search-button">ASK</button>
+      <span class="search-icon">🔍</span>
+      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
+      <button type="submit" id="searchButton" class="search-button">ASK</button>
     </div>
   </form>
-
-  <div id="loading">Fact-check underway. Average response time is 30 seconds.</div>
-
-  <div id="responseContainer">
-    <div class="response-block">
-      <div id="hook"></div>
-      <div id="keyPoints" class="block-title"></div>
-      <ul id="bullets"></ul>
-      <div id="social" class="block-title"></div>
-      <div id="suggestedPost"></div>
-      <div class="dropdown">
-        <button class="dropdown-toggle" onclick="toggleSources()">View Sources</button>
-        <div id="sources" class="dropdown-content"></div>
+  <div id="loading"></div>
+  <div id="mainContent">
+    <div id="responseContent">
+      <div id="responseContainer">
+        <div class="response-header">
+          <h3>Results</h3>
+          <button id="copyButton" class="copy-button">
+            <span class="copy-icon">📋</span> Copy
+          </button>
+        </div>
+        <div id="response"></div>
       </div>
-      <button class="copy-button" onclick="copyResponse()">📋 Copy</button>
+    </div>
+    <div id="suggestedContent">
+      <h3 class="section-header">What People Are Asking</h3>
+      <div class="suggested-questions"></div>
+      <div style="text-align: center; margin-top: 30px;">
+        <p style="margin-bottom: 10px; font-size: 16px; font-style: bold;">Want deeper breakdowns and fresh messaging each week?</p>
+        <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
+        <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" style="background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block;">Subscribe</a>
+      </div>
     </div>
   </div>
-
+  <div style="text-align: center; font-size: 12px; color: #666; margin-top: 30px;">
+    <a href="#" onclick="toggleDropdown(); return false;" style="color: #0077cc; text-decoration: underline; cursor: pointer;">How Hmm AI Works</a>
+    <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
+      <strong>How Hmm AI Works</strong><br>
+      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
+    </div>
+  </div>
   <script>
-    const form = document.getElementById('factCheckForm');
-    const loading = document.getElementById('loading');
-    const responseContainer = document.getElementById('responseContainer');
-    const hook = document.getElementById('hook');
-    const keyPoints = document.getElementById('keyPoints');
-    const bullets = document.getElementById('bullets');
-    const social = document.getElementById('social');
-    const suggestedPost = document.getElementById('suggestedPost');
-    const sources = document.getElementById('sources');
-    let originalResponseText = '';
-
-    function toggleSources() {
-      sources.style.display = sources.style.display === 'block' ? 'none' : 'block';
+    function toggleDropdown() {
+      const content = document.getElementById("dropdownContent");
+      content.style.display = content.style.display === "none" ? "block" : "none";
     }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('factCheckForm');
+      const promptInput = document.getElementById('prompt');
+      const loading = document.getElementById('loading');
+      const response = document.getElementById('response');
+      const responseContainer = document.getElementById('responseContainer');
+      const copyButton = document.getElementById('copyButton');
+      const suggestedQuestionsContainer = document.querySelector('.suggested-questions');
+      const searchButton = document.getElementById('searchButton');
+      const loadingMessages = ["Fact-check underway. Average response time is 30 seconds."];
+      let loadingInterval, originalResponseText = '', isSubmitting = false;
 
-    function copyResponse() {
-      navigator.clipboard.writeText(originalResponseText).then(() => {
-        alert('Copied to clipboard!');
-      });
-    }
+      const defaultQuestions = [
+        'Was classified information sent over Signal?',
+        'Does Social Security have widespread fraud?',
+        'Is there voter fraud from undocumented people?',
+        'Are we spending money on transgender mice?',
+        'Should the Department of Ed be eliminated?',
+        'Is half the aid to Ukraine missing?'
+      ];
 
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) return;
-
-      loading.style.display = 'block';
-      responseContainer.style.display = 'none';
-      hook.textContent = '';
-      bullets.innerHTML = '';
-      suggestedPost.textContent = '';
-      sources.innerHTML = '';
-
-      try {
-        const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+      function updateSuggestedQuestions(questions) {
+        suggestedQuestionsContainer.innerHTML = '';
+        questions.forEach(q => {
+          const box = document.createElement('div');
+          box.className = 'question-box';
+          box.textContent = q;
+          box.onclick = () => promptInput.value = q;
+          suggestedQuestionsContainer.appendChild(box);
         });
+      }
 
-        const data = await res.json();
-        originalResponseText = JSON.stringify(data, null, 2);
+      function startLoadingAnimation() {
+        clearInterval(loadingInterval);
+        loading.style.display = 'block';
+        loading.innerText = loadingMessages[0];
+        loadingInterval = setInterval(() => {
+          loading.innerText = loadingMessages[0];
+        }, 10000);
+      }
 
-        hook.innerHTML = `<div class='block-title'>Overview</div><p>${data.hook}</p>`;
-        keyPoints.textContent = 'Key Facts';
-        (data.key_points || []).forEach(pt => {
-          const li = document.createElement('li');
-          li.textContent = pt;
-          bullets.appendChild(li);
-        });
-        social.textContent = 'Suggested Social Post';
-        suggestedPost.textContent = data.suggested_post;
-        (data.sources || []).forEach(link => {
-          const a = document.createElement('a');
-          a.href = link;
-          a.textContent = link;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          sources.appendChild(a);
-          sources.appendChild(document.createElement('br'));
-        });
-
-        responseContainer.style.display = 'block';
-      } catch (err) {
-        alert('There was an error fetching the fact-check.');
-        console.error(err);
-      } finally {
+      function stopLoadingAnimation() {
+        clearInterval(loadingInterval);
         loading.style.display = 'none';
       }
+
+      copyButton.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(originalResponseText);
+          copyButton.innerHTML = '✓ Copied!';
+          copyButton.style.backgroundColor = '#4CAF50';
+          copyButton.style.color = 'white';
+          setTimeout(() => {
+            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
+            copyButton.style.backgroundColor = '#f1f1f1';
+            copyButton.style.color = 'black';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+      });
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (isSubmitting) return;
+        const userPrompt = promptInput.value.trim();
+        if (!userPrompt) return;
+
+        isSubmitting = true;
+        searchButton.disabled = true;
+        startLoadingAnimation();
+        response.innerHTML = '';
+        responseContainer.style.display = 'none';
+
+        try {
+          const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: userPrompt })
+          });
+
+          const text = await res.text();
+          let responseData;
+          try {
+            responseData = JSON.parse(text);
+          } catch {
+            responseData = { answer: text || 'No valid answer returned.' };
+          }
+
+          if (responseData && responseData.answer) {
+            originalResponseText = responseData.answer;
+            try {
+              response.innerHTML = marked.parse(responseData.answer);
+            } catch {
+              response.textContent = responseData.answer;
+            }
+            responseContainer.style.display = 'block';
+          } else {
+            response.textContent = 'No answer content found.';
+            responseContainer.style.display = 'block';
+          }
+        } catch (error) {
+          response.textContent = 'Error: ' + error.message;
+          responseContainer.style.display = 'block';
+        } finally {
+          stopLoadingAnimation();
+          isSubmitting = false;
+          searchButton.disabled = false;
+        }
+      });
+
+      updateSuggestedQuestions(defaultQuestions);
     });
   </script>
 </body>
