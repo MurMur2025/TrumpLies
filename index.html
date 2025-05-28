@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Fact Check AI</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
@@ -21,19 +21,6 @@
     .fact-sheet-content img { max-width: 100%; height: auto; display: block; margin: 1rem 0; border-radius: 4px; }
     .arrow { font-size: 12px; transition: transform 0.3s; }
     .arrow.open { transform: rotate(90deg); }
-    .search-container { position: relative; margin-bottom: 20px; display: flex; }
-    .search-input { flex: 1; padding: 12px 50px 12px 40px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; font-size: 16px; outline: none; }
-    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; z-index: 1; }
-    .search-button { min-width: 80px; padding: 0 15px; background-color: #111; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
-    #loading { text-align: center; margin: 15px 0; font-style: italic; color: #00008b; display: none; font-size: 0.9rem; }
-    #responseContainer { border-top: 1px solid #ddd; margin-top: 20px; padding-top: 20px; display: none; }
-    .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .copy-button { background-color: #f1f1f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
-    .copy-icon { margin-right: 5px; }
-    #response { background-color: #f9f9f9; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; }
-    .subscribe-section { text-align: center; margin-top: 30px; }
-    .subscribe-button { background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; }
-    .how-works-link { display: block; margin-top: 15px; font-size: 12px; color: #0077cc; text-decoration: underline; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -49,82 +36,47 @@
   </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
-  <div class="subscribe-section">
-    <p style="margin-bottom: 10px; font-size: 16px;">Want deeper breakdowns and fresh messaging each week?</p>
-    <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
-    <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" class="subscribe-button">Subscribe</a>
-    <a href="#" onclick="toggleDropdown(); return false;" class="how-works-link">How Hmm AI Works</a>
-    <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
-      <strong>How Hmm AI Works</strong><br>
-      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
-    </div>
-  </div>
+
   <script>
-  function toggleDropdown() {
-    const content = document.getElementById("dropdownContent");
-    content.style.display = content.style.display === "none" ? "block" : "none";
-  }
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('data/fact-sheets.json')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('factSheetList');
+          data.forEach(sheet => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'fact-sheet-item';
 
-  document.addEventListener('DOMContentLoaded', function () {
-    fetch('data/fact-sheets.json')
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('factSheetList');
-        data.forEach(sheet => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'fact-sheet-item';
+            const header = document.createElement('div');
+            header.className = 'fact-sheet-header';
+            header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
 
-          const header = document.createElement('div');
-          header.className = 'fact-sheet-header';
-          header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
+            const content = document.createElement('div');
+            content.className = 'fact-sheet-content';
 
-          const content = document.createElement('div');
-          content.className = 'fact-sheet-content';
+            let markdown = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}`;
 
-          let markdown = `**Hook:**
-${sheet.hook}
+            if (sheet.image_url) {
+              markdown += `\n\n![Suggested Graphic](${sheet.image_url})\n\n[⬇ Download Graphic](${sheet.image_url})`;
+            }
 
-**Key Facts:**
-- ${sheet.key_facts.join('
-- ')}
+            markdown += `\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
 
-**What to Highlight:**
-- ${sheet.what_to_highlight.join('
-- ')}
+            content.innerHTML = marked.parse(markdown);
 
-**Suggested Post:**
-${sheet.suggested_post}`;
+            header.onclick = () => {
+              const isOpen = content.style.display === 'block';
+              content.style.display = isOpen ? 'none' : 'block';
+              const arrow = header.querySelector('.arrow');
+              arrow.classList.toggle('open', !isOpen);
+            };
 
-          if (sheet.image_url) {
-            markdown += `
-
-![Suggested Graphic](${sheet.image_url})
-
-[⬇ Download Graphic](${sheet.image_url})`;
-          }
-
-          markdown += `
-
-**Sources:**
-- ${sheet.sources.join('
-- ')}`;
-
-          content.innerHTML = marked.parse(markdown);
-
-          header.onclick = () => {
-            const isOpen = content.style.display === 'block';
-            content.style.display = isOpen ? 'none' : 'block';
-            const arrow = header.querySelector('.arrow');
-            arrow.classList.toggle('open', !isOpen);
-          };
-
-          wrapper.appendChild(header);
-          wrapper.appendChild(content);
-          list.appendChild(wrapper);
+            wrapper.appendChild(header);
+            wrapper.appendChild(content);
+            list.appendChild(wrapper);
+          });
         });
-      });
-  });
-</script>
-</body>
+    });
+  </script>
 </body>
 </html>
