@@ -103,11 +103,7 @@
 
             const content = document.createElement('div');
             content.className = 'fact-sheet-content';
-            const formatted = `**Hook:**\n${sheet.hook}
-\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}
-\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}
-\n\n**Suggested Post:**\n${sheet.suggested_post}
-\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
             content.innerHTML = marked.parse(formatted);
 
             header.onclick = () => {
@@ -136,6 +132,45 @@
           }, 2000);
         } catch (err) {
           console.error('Failed to copy text: ', err);
+        }
+      });
+
+      // Submit handler for the prompt form
+      const form = document.getElementById('factCheckForm');
+      const promptInput = document.getElementById('prompt');
+      const loading = document.getElementById('loading');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+
+        loading.style.display = 'block';
+        loading.innerText = 'Fact-Check underway. Average response time is 30 seconds.';
+        responseContainer.style.display = 'none';
+        response.innerHTML = '';
+
+        try {
+          const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+          });
+
+          const data = await res.json();
+          const markdown = data.answer || 'No response received.';
+          response.innerHTML = marked.parse(markdown);
+          originalResponseText = markdown;
+          responseContainer.style.display = 'block';
+        } catch (error) {
+          console.error('Error:', error);
+          response.innerHTML = '<p style="color:red;">Failed to fetch fact-check. Please try again later.</p>';
+          responseContainer.style.display = 'block';
+        } finally {
+          loading.style.display = 'none';
         }
       });
     });
