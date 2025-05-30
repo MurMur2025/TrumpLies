@@ -135,7 +135,6 @@
         }
       });
 
-      // Submit handler for the prompt form
       const form = document.getElementById('factCheckForm');
       const promptInput = document.getElementById('prompt');
       const loading = document.getElementById('loading');
@@ -160,8 +159,7 @@
             body: JSON.stringify({ prompt })
           });
 
-          const data = await res.json();
-          const markdown = data.answer || 'No response received.';
+          const markdown = await res.text(); // handle plain text/markdown
           response.innerHTML = marked.parse(markdown);
           originalResponseText = markdown;
           responseContainer.style.display = 'block';
