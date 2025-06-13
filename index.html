@@ -27,7 +27,7 @@
     #loading { text-align: center; margin: 15px 0; font-style: italic; color: #00008b; display: none; font-size: 0.9rem; }
     #responseContainer { border-top: 1px solid #ddd; margin-top: 20px; padding-top: 20px; display: none; }
     .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .copy-button { background-color: #f1f1f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
+    .copy-button { background-color: #f1f9f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
     .copy-icon { margin-right: 5px; }
     #response { background-color: #f9f9f9; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; }
     .subscribe-section { text-align: center; margin-top: 30px; }
@@ -36,6 +36,12 @@
     /* Spinner animation */
     .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #111; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    /* Modal styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; position: relative; }
+    .modal-close { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; }
+    .modal-content input, .modal-content textarea { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .modal-content button[type="submit"] { background-color: #111; color: #fff; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -60,9 +66,7 @@
   <div id="responseContainer">
     <div class="response-header">
       <h3>Results</h3>
-      <button id="copyButton" class="copy-button">
-        <span class="copy-icon">📋</span> Copy
-      </button>
+      <button id="copyButton" class="copy-button"><span class="copy-icon">📋</span> Copy</button>
     </div>
     <div id="response"></div>
   </div>
@@ -74,24 +78,23 @@
     <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
     <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" class="subscribe-button">Subscribe</a>
     <a href="#" onclick="toggleDropdown(); return false;" class="how-works-link">How Hmm AI Works</a>
-    <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
-      <strong>How Hmm AI Works</strong><br>
-      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
-    </div>
   </div>
 
-  <!-- Contact dropdown trigger & menu -->
-  <div class="contact-dropdown" style="text-align:center; margin-top:20px;">
-    <button id="contactToggle" class="subscribe-button">Contact Us</button>
-    <div id="contactMenu" style="display:none; margin-top:10px;">
-      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field"
-            style="display:flex; flex-direction:column; gap:8px; max-width:600px; margin:0 auto;">
+  <!-- Feedback link opens modal -->
+  <p style="text-align:center; margin-top:20px;"><a href="#" id="contactToggle" class="how-works-link">We'd love your feedback. Get in touch with us here.</a></p>
+
+  <!-- Modal Overlay -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal-content">
+      <button id="modalClose" class="modal-close">&times;</button>
+      <h3 class="section-header">Contact</h3>
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="contact">
-        <p style="display:none;"><label>Don’t fill this out: <input name="bot-field"></label></p>
+        <p style="display:none;"><label>Don't fill this out if you're human: <input name="bot-field"></label></p>
         <input type="text" name="name" placeholder="Your Name" required>
         <input type="email" name="email" placeholder="Your Email" required>
         <textarea name="message" placeholder="Your Message" rows="4" required></textarea>
-        <button type="submit" style="background-color:#111; color:white; margin-top:8px;">Send</button>
+        <button type="submit">Send</button>
       </form>
     </div>
   </div>
@@ -101,7 +104,6 @@
       const content = document.getElementById("dropdownContent");
       content.style.display = content.style.display === "none" ? "block" : "none";
     }
-
     document.addEventListener('DOMContentLoaded', function() {
       const response = document.getElementById('response');
       const responseContainer = document.getElementById('responseContainer');
@@ -147,7 +149,7 @@
           copyButton.style.color = 'white';
           setTimeout(() => {
             copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
+            copyButton.style.backgroundColor = '#f1f9f1';
             copyButton.style.color = 'black';
           }, 2000);
         } catch (err) {
@@ -162,20 +164,15 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const prompt = promptInput.value.trim();
         if (!prompt) return;
-
         loading.style.display = 'block';
-        loading.innerHTML = '<span class="spinner"></span>Fact-Check underway. Average response time is 30 seconds.';
+        loading.innerHTML = '<span class=\"spinner\"></span>Fact-Check underway. Average response time is 30 seconds.';
         responseContainer.style.display = 'none';
         response.innerHTML = '';
-
         try {
           const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt })
           });
           const markdown = await res.text();
           response.innerHTML = marked.parse(markdown);
@@ -183,23 +180,31 @@
           responseContainer.style.display = 'block';
         } catch (error) {
           console.error('Error:', error);
-          response.innerHTML = '<p style="color:red;">Failed to fetch fact-check. Please try again later.</p>';
+          response.innerHTML = '<p style=\"color:red;\">Failed to fetch fact-check. Please try again later.</p>';
           responseContainer.style.display = 'block';
         } finally {
           loading.style.display = 'none';
         }
       });
 
-      // Contact form dropdown toggle
+      // Contact modal logic
       const contactToggle = document.getElementById('contactToggle');
-      const contactMenu   = document.getElementById('contactMenu');
-      if (contactToggle && contactMenu) {
-        contactToggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          contactMenu.style.display =
-            contactMenu.style.display === 'block' ? 'none' : 'block';
-        });
-      }
+      const modalOverlay  = document.getElementById('modalOverlay');
+      const modalClose    = document.getElementById('modalClose');
+      const contactForm   = document.querySelector('form[name="contact"]');
+
+      contactToggle.addEventListener('click', function(e) {
+        e.preventDefault(); modalOverlay.style.display = 'flex';
+      });
+      modalClose.addEventListener('click', function() {
+        modalOverlay.style.display = 'none';
+      });
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) modalOverlay.style.display = 'none';
+      });
+      contactForm.addEventListener('submit', function() {
+        modalOverlay.style.display = 'none';
+      });
     });
   </script>
 </body>
