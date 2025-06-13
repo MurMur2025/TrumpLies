@@ -65,7 +65,6 @@
   </div>
   <h3 class="section-header">Issues You Should Highlight</h3>
   <div class="fact-sheet-list" id="factSheetList"></div>
-
   <div class="subscribe-section">
     <p style="margin-bottom: 10px; font-size: 16px;">Want deeper breakdowns and fresh messaging each week?</p>
     <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
@@ -76,143 +75,6 @@
       Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
     </div>
   </div>
-
-  <script>
-    function toggleDropdown() {
-      const content = document.getElementById("dropdownContent");
-      content.style.display = content.style.display === "none" ? "block" : "none";
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const response = document.getElementById('response');
-      const responseContainer = document.getElementById('responseContainer');
-      const copyButton = document.getElementById('copyButton');
-      let originalResponseText = '';
-
-      fetch('data/fact-sheets.json')
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById('factSheetList');
-          data.forEach(sheet => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'fact-sheet-item';
-
-            const header = document.createElement('div');
-            header.className = 'fact-sheet-header';
-            header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
-
-            const content = document.createElement('div');
-            content.className = 'fact-sheet-content';
-            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
-            content.innerHTML = marked.parse(formatted);
-
-            header.onclick = () => {
-              const isOpen = content.style.display === 'block';
-              content.style.display = isOpen ? 'none' : 'block';
-              const arrow = header.querySelector('.arrow');
-              arrow.classList.toggle('open', !isOpen);
-            };
-
-            wrapper.appendChild(header);
-            wrapper.appendChild(content);
-            list.appendChild(wrapper);
-          });
-        });
-
-      copyButton.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(originalResponseText);
-          copyButton.innerHTML = '✓ Copied!';
-          copyButton.style.backgroundColor = '#4CAF50';
-          copyButton.style.color = 'white';
-          setTimeout(() => {
-            copyButton.innerHTML = '<span class="copy-icon">📋</span> Copy';
-            copyButton.style.backgroundColor = '#f1f1f1';
-            copyButton.style.color = 'black';
-          }, 2000);
-        } catch (err) {
-          console.error('Failed to copy text: ', err);
-        }
-      });
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Political Truth Hub</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; }
-    .site-header { text-align: center; margin-bottom: 2rem; }
-    .site-logo { max-width: 200px; height: auto; }
-    .header { text-align: center; margin-bottom: 40px; }
-    h1 { font-size: 24px; margin-bottom: 10px; text-align: center; }
-    .description { font-size: 14px; color: #666; margin-bottom: 30px; text-align: center; }
-    .section-header { margin-top: 30px; margin-bottom: 15px; font-size: 18px; font-weight: bold; text-align: center; }
-    .fact-sheet-list { display: flex; flex-direction: column; gap: 10px; margin: 20px auto; max-width: 600px; }
-    .fact-sheet-item { border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
-    .fact-sheet-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; }
-    .fact-sheet-header:hover { background-color: #f1f1f1; }
-    .fact-sheet-content { display: none; padding: 15px; border-top: 1px solid #ddd; background-color: #fff; }
-    .arrow { font-size: 12px; transition: transform 0.3s; }
-    .arrow.open { transform: rotate(90deg); }
-    .search-container { position: relative; margin-bottom: 20px; display: flex; }
-    .search-input { flex: 1; padding: 12px 50px 12px 40px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; font-size: 16px; outline: none; }
-    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; z-index: 1; }
-    .search-button { min-width: 80px; padding: 0 15px; background-color: #111; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
-    #loading { text-align: center; margin: 15px 0; font-style: italic; color: #00008b; display: none; font-size: 0.9rem; }
-    #responseContainer { border-top: 1px solid #ddd; margin-top: 20px; padding-top: 20px; display: none; }
-    .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .copy-button { background-color: #f1f1f1; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; font-size: 14px; }
-    .copy-icon { margin-right: 5px; }
-    #response { background-color: #f9f9f9; padding: 20px; border-radius: 4px; max-height: 500px; overflow-y: auto; }
-    .subscribe-section { text-align: center; margin-top: 30px; }
-    .subscribe-button { background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; }
-    .how-works-link { display: block; margin-top: 15px; font-size: 12px; color: #0077cc; text-decoration: underline; cursor: pointer; }
-  </style>
-</head>
-<body>
-  <header class="site-header">
-    <a href="/" onclick="location.reload(); return false;"><img src="assets/logo.png" alt="MurMur logo" class="site-logo" /></a>
-  </header>
-  <div class="header">
-    <h1>The Political Truth Hub.</h1>
-    <div class="description">
-      <p style="font-size: 1.0rem; font-weight: bold;">Your source for facts, context, and creator-ready content.</p>
-      <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
-    </div>
-  </div>
-  <form id="factCheckForm">
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="prompt" class="search-input" placeholder="Type a claim or question (I.E Is Trump cutting Medicare)" autocomplete="off">
-      <button type="submit" id="searchButton" class="search-button">ASK</button>
-    </div>
-  </form>
-  <div id="loading"></div>
-  <div id="responseContainer">
-    <div class="response-header">
-      <h3>Results</h3>
-      <button id="copyButton" class="copy-button">
-        <span class="copy-icon">📋</span> Copy
-      </button>
-    </div>
-    <div id="response"></div>
-  </div>
-  <h3 class="section-header">Issues You Should Highlight</h3>
-  <div class="fact-sheet-list" id="factSheetList"></div>
-
-  <div class="subscribe-section">
-    <p style="margin-bottom: 10px; font-size: 16px;">Want deeper breakdowns and fresh messaging each week?</p>
-    <p style="font-size: 12px;">Subscribe to MurMur's Substack for clear facts and messaging you can use.</p>
-    <a href="https://murmurimpact.com" target="_blank" rel="noopener noreferrer" class="subscribe-button">Subscribe</a>
-    <a href="#" onclick="toggleDropdown(); return false;" class="how-works-link">How Hmm AI Works</a>
-    <div id="dropdownContent" style="display:none; margin-top:10px; padding:10px; border:1px solid #eee; border-radius:4px; background-color:#fafafa; font-size: 13px; max-width: 600px; margin: 10px auto 0 auto;">
-      <strong>How Hmm AI Works</strong><br>
-      Behind the scenes, Hmm AI combines insights from multiple research tools to ensure accuracy. It then delivers fact-based summaries you can trust—and messaging you can use.
-    </div>
-  </div>
-
   <script>
     function toggleDropdown() {
       const content = document.getElementById("dropdownContent");
@@ -295,47 +157,7 @@
             body: JSON.stringify({ prompt })
           });
 
-          const markdown = await res.text(); // handle plain text/markdown
-          response.innerHTML = marked.parse(markdown);
-          originalResponseText = markdown;
-          responseContainer.style.display = 'block';
-        } catch (error) {
-          console.error('Error:', error);
-          response.innerHTML = '<p style="color:red;">Failed to fetch fact-check. Please try again later.</p>';
-          responseContainer.style.display = 'block';
-        } finally {
-          loading.style.display = 'none';
-        }
-      });
-    });
-  </script>
-</body>
-</html>
-      const form = document.getElementById('factCheckForm');
-      const promptInput = document.getElementById('prompt');
-      const loading = document.getElementById('loading');
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const prompt = promptInput.value.trim();
-        if (!prompt) return;
-
-        loading.style.display = 'block';
-        loading.innerText = 'Fact-Check underway. Average response time is 30 seconds.';
-        responseContainer.style.display = 'none';
-        response.innerHTML = '';
-
-        try {
-          const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt })
-          });
-
-          const markdown = await res.text(); // handle plain text/markdown
+          const markdown = await res.text();
           response.innerHTML = marked.parse(markdown);
           originalResponseText = markdown;
           responseContainer.style.display = 'block';
