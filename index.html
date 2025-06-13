@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fact Check AI</title>
+  <title>Political Truth Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.5; }
@@ -40,9 +40,9 @@
     <a href="/" onclick="location.reload(); return false;"><img src="assets/logo.png" alt="MurMur logo" class="site-logo" /></a>
   </header>
   <div class="header">
-    <h1>Fact Checking The Trump Administration.</h1>
+    <h1>The Political Truth Hub.</h1>
     <div class="description">
-      <p style="font-size: 1.0rem; font-weight: bold;">Built for creators. Backed by facts.</p>
+      <p style="font-size: 1.0rem; font-weight: bold;">Your source for facts, context, and creator-ready content.</p>
       <p style="margin-top: 0.5rem;">Get clear, fact-based answers - and ready to share talking points - to help fight misinformation.</p>
     </div>
   </div>
@@ -103,11 +103,7 @@
 
             const content = document.createElement('div');
             content.className = 'fact-sheet-content';
-            const formatted = `**Hook:**\n${sheet.hook}
-\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}
-\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}
-\n\n**Suggested Post:**\n${sheet.suggested_post}
-\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
+            const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
             content.innerHTML = marked.parse(formatted);
 
             header.onclick = () => {
@@ -136,6 +132,43 @@
           }, 2000);
         } catch (err) {
           console.error('Failed to copy text: ', err);
+        }
+      });
+
+      const form = document.getElementById('factCheckForm');
+      const promptInput = document.getElementById('prompt');
+      const loading = document.getElementById('loading');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+
+        loading.style.display = 'block';
+        loading.innerText = 'Fact-Check underway. Average response time is 30 seconds.';
+        responseContainer.style.display = 'none';
+        response.innerHTML = '';
+
+        try {
+          const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt })
+          });
+
+          const markdown = await res.text(); // handle plain text/markdown
+          response.innerHTML = marked.parse(markdown);
+          originalResponseText = markdown;
+          responseContainer.style.display = 'block';
+        } catch (error) {
+          console.error('Error:', error);
+          response.innerHTML = '<p style="color:red;">Failed to fetch fact-check. Please try again later.</p>';
+          responseContainer.style.display = 'block';
+        } finally {
+          loading.style.display = 'none';
         }
       });
     });
