@@ -34,23 +34,8 @@
     .subscribe-button { background-color: orange; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; display: inline-block; font-size: 16px; }
     .how-works-link { display: block; margin-top: 15px; font-size: 12px; color: #0077cc; text-decoration: underline; cursor: pointer; }
     /* Spinner animation */
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #111;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #111; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -95,6 +80,22 @@
     </div>
   </div>
 
+  <!-- Contact dropdown trigger & menu -->
+  <div class="contact-dropdown" style="text-align:center; margin-top:20px;">
+    <button id="contactToggle" class="subscribe-button">Contact Us</button>
+    <div id="contactMenu" style="display:none; margin-top:10px;">
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+            style="display:flex; flex-direction:column; gap:8px; max-width:600px; margin:0 auto;">
+        <input type="hidden" name="form-name" value="contact">
+        <p style="display:none;"><label>Don’t fill this out: <input name="bot-field"></label></p>
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message" rows="4" required></textarea>
+        <button type="submit" style="background-color:#111; color:white; margin-top:8px;">Send</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     function toggleDropdown() {
       const content = document.getElementById("dropdownContent");
@@ -107,6 +108,7 @@
       const copyButton = document.getElementById('copyButton');
       let originalResponseText = '';
 
+      // Load fact sheets
       fetch('data/fact-sheets.json')
         .then(res => res.json())
         .then(data => {
@@ -119,24 +121,24 @@
             header.className = 'fact-sheet-header';
             header.innerHTML = `<span>${sheet.title}</span><span class="arrow">▶</span>`;
 
-            const content = document.createElement('div');
-            content.className = 'fact-sheet-content';
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'fact-sheet-content';
             const formatted = `**Hook:**\n${sheet.hook}\n\n**Key Facts:**\n- ${sheet.key_facts.join('\n- ')}\n\n**What to Highlight:**\n- ${sheet.what_to_highlight.join('\n- ')}\n\n**Suggested Post:**\n${sheet.suggested_post}\n\n**Sources:**\n- ${sheet.sources.join('\n- ')}`;
-            content.innerHTML = marked.parse(formatted);
+            contentDiv.innerHTML = marked.parse(formatted);
 
             header.onclick = () => {
-              const isOpen = content.style.display === 'block';
-              content.style.display = isOpen ? 'none' : 'block';
-              const arrow = header.querySelector('.arrow');
-              arrow.classList.toggle('open', !isOpen);
+              const isOpen = contentDiv.style.display === 'block';
+              contentDiv.style.display = isOpen ? 'none' : 'block';
+              header.querySelector('.arrow').classList.toggle('open', !isOpen);
             };
 
             wrapper.appendChild(header);
-            wrapper.appendChild(content);
+            wrapper.appendChild(contentDiv);
             list.appendChild(wrapper);
           });
         });
 
+      // Copy button
       copyButton.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(originalResponseText);
@@ -153,6 +155,7 @@
         }
       });
 
+      // Fact check form submit
       const form = document.getElementById('factCheckForm');
       const promptInput = document.getElementById('prompt');
       const loading = document.getElementById('loading');
@@ -171,13 +174,10 @@
         try {
           const res = await fetch('https://hook.us2.make.com/y7vsoqn5efv9kgzq1ofmhabpx1uf2o92', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
           });
-
-          const markdown = await res.text(); // handle plain text/markdown
+          const markdown = await res.text();
           response.innerHTML = marked.parse(markdown);
           originalResponseText = markdown;
           responseContainer.style.display = 'block';
@@ -189,6 +189,17 @@
           loading.style.display = 'none';
         }
       });
+
+      // Contact form dropdown toggle
+      const contactToggle = document.getElementById('contactToggle');
+      const contactMenu   = document.getElementById('contactMenu');
+      if (contactToggle && contactMenu) {
+        contactToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          contactMenu.style.display =
+            contactMenu.style.display === 'block' ? 'none' : 'block';
+        });
+      }
     });
   </script>
 </body>
